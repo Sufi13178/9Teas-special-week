@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>9 Teas Week Special Offer </title>
+  <style>
+    
+    :root{font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f7fb;margin:0;padding:24px}
+    .card{background:#fff;padding:24px;border-radius:12px;box-shadow:0 6px 24px rgba(20,30,60,0.08);width:100%;max-width:520px}
+    h1{margin:0 0 14px;font-size:20px}
+    h2.desc{margin:0 0 18px;color:#556 ;font: bold;}
+    .row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+    label{font-size:13px;color:#243044}
+    input, textarea{padding:10px 12px;border:1px solid #d7dbe6;border-radius:8px;font-size:14px}
+    input:invalid, textarea:invalid{border-color:#e05d5d}
+    .hint{font-size:12px;color:#7a8799}
+    .actions{display:flex;gap:8px;justify-content:flex-end}
+    button{padding:10px 14px;border-radius:8px;border:0;background:#2563eb;color:#fff;cursor:pointer}
+    button.secondary{background:#eef2ff;color:#1f2937}
+    .error{color:#b52828;font-size:13px}
+    .logo {
+  display: flex;
+  justify-content: center;  /* centers horizontally */
+  margin-bottom: 14px;       /* space below the image */
+}
+
+.logo img {
+  width: 80px;  /* small size (adjust as needed) */
+  height: auto; /* keeps aspect ratio */
+  border-radius: 8px; /* optional: rounded corners */
+}
+  </style>
+</head>
+<body>
+  <form class="card" id="profileForm" novalidate>
+    <span>
+               <img src="9teascagelogo.png" alt="" width="100px" height="100px">
+            </span>
+    <h2 class="desc">9 Teas Week Special Offer</h2>
+
+    <!-- Mobile: accept digits only, max 10 -->
+    <div class="row">
+      <label for="mobile">Mobile number</label>
+      <input id="mobile" name="mobile" inputmode="numeric" pattern="\\d{10}" maxlength="10" minlength="10" placeholder="e.g. 9876543210" required />
+     <div class="error" id="mobileError" aria-live="polite"></div>
+    </div>
+
+    <!-- Name: accept only letters and spaces -->
+    <div class="row">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" pattern="[A-Za-z\s]+" placeholder="Full name" required />
+      <div class="error" id="nameError" aria-live="polite"></div>
+    </div>
+
+    <!-- Area: accept only text (letters, spaces, optional commas/dashes) -->
+    <div class="row">
+      <label for="area">Area</label>
+      <input id="area" name="area" type="text" pattern="[A-Za-z0-9\s,.-]+" placeholder="City, Locality or Area" required />
+      <div class="error" id="areaError" aria-live="polite"></div>
+    </div>
+
+    <!-- Instagram username: letters, numbers, periods and underscores, max 30 (no @) -->
+    <div class="row">
+      <label for="instagram">Instagram username</label>
+      <input id="instagram" name="instagram" type="text" pattern="^[A-Za-z0-9._]{1,30}$" maxlength="30" placeholder="e.g. your.name_123" />
+      <div class="error" id="instaError" aria-live="polite"></div>
+    </div>
+
+    <!-- Lucky number: only numbers 1 to 90 -->
+    <div class="row">
+      <label for="lucky">Enter Lucky No</label>
+      <input id="lucky" name="lucky" type="number" min="1" max="90"  required />
+      <div class="error" id="luckyError" aria-live="polite"></div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="secondary" id="resetBtn">Reset</button>
+      <button type="button" onclick="submitToGoogleSheetfrn()" class="send-btn">Submit</button>
+    </div>
+  </form>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+  async function submitToGoogleSheetfrn() {
+      const scriptURL = 'https://script.google.com/macros/s/AKfycbxbIto7CkXmP5qXjCKmbwbWIOiPZ8nv5GDrqMk6lwWWHdCplHx3IM8Ivn-UIoWo8znCwg/exec'; 
+
+    const form = document.getElementById('profileForm');
+    const formData = new FormData(form);
+
+    // Get form values
+    const mobile = formData.get('mobile').trim();
+    const name = formData.get('name').trim();
+    const area = formData.get('area').trim();
+    const instagram = formData.get('instagram').trim();
+    const lucky = formData.get('lucky').trim();
+    
+
+    // Validation using swal
+    if (!mobile || !name || !area || !instagram ) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all the required fields.',
+        confirmButtonText: 'OK'
+      });
+      return false;
+    }
+ // ✅ Mobile number must be exactly 10 digits
+  if (!/^\d{10}$/.test(mobile)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Mobile Number',
+      text: '📱 Please enter a valid 10-digit mobile number.',
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+    // Create data object
+    const data = {
+      mobile,
+      name,
+      area,
+      instagram,
+      lucky,
+    };
+
+    console.log(data);
+
+    try {
+      const response = await fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        mode: 'no-cors',
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '✅ Your data has been submitted successfully!',
+        confirmButtonText: 'OK'
+      });
+
+      form.reset(); // Clear all fields
+    } catch (error) {
+      console.error('Error!', error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: '❌ Something went wrong while submitting the form.',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
+</script>
+
+
+
+
+
+</body>
+</html>
